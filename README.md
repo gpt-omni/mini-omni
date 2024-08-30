@@ -7,7 +7,7 @@ Mini-Omni: Language Models Can Hear, Talk While Thinking in Streaming
 </p>
 
 <p align="center">
-🤗 <a href="">Hugging Face</a>   | 📖 <a href="https://github.com/gpt-omni/mini-omni">Github</a> 
+🤗 <a href="https://huggingface.co/gpt-omni/mini-omni">Hugging Face</a>   | 📖 <a href="https://github.com/gpt-omni/mini-omni">Github</a> 
 |     📑 <a href="https://arxiv.org/abs/2408.16725">Technical report</a>
 </p>
 
