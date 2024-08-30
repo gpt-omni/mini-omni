@@ -1,20 +1,21 @@
 
 # Mini-Omni
 
-<p align="center">
+<p align="center"><strong style="font-size: 18px;">
 Mini-Omni: Language Models Can Hear, Talk While Thinking in Streaming
-<p>
+</strong>
+</p>
 
 <p align="center">
 🤗 <a href="">Hugging Face</a>   | 📖 <a href="https://github.com/gpt-omni/mini-omni">Github</a> 
-|     📑 <a href="">Technical report (coming soon)</a>
-<p>
+|     📑 <a href="https://arxiv.org/abs/2408.16725">Technical report</a>
+</p>
 
 Mini-Omni is an open-source multimodel large language model that can **hear, talk while thinking**. Featuring real-time end-to-end speech input and **streaming audio output** conversational capabilities.
 
 <p align="center">
     <img src="data/figures/frameworkv3.jpg" width="100%"/>
-<p>
+</p>
 
 
 ## Features
@@ -29,7 +30,10 @@ Mini-Omni is an open-source multimodel large language model that can **hear, tal
 
 ## Demo
 
-![](./data/demo_streamlit.mov)
+NOTE: need to unmute first.
+
+https://github.com/user-attachments/assets/03bdde05-9514-4748-b527-003bea57f118
+
 
 ## Install
 
@@ -71,7 +75,10 @@ API_URL=http://0.0.0.0:60808/chat python3 webui/omni_gradio.py
 
 example:
 
-![](./data/demo_gradio.mov)
+NOTE: need to unmute first. Gradio seems can not play audio stream instantly, so the latency feels a bit longer.
+
+https://github.com/user-attachments/assets/29187680-4c42-47ff-b352-f0ea333496d9
+
 
 **Local test**
 
