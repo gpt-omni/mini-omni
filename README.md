@@ -97,3 +97,7 @@ python inference.py
 - [snac](https://github.com/hubertsiuzdak/snac/)  for audio decoding.
 - [CosyVoice](https://github.com/FunAudioLLM/CosyVoice) for generating synthetic speech.
 - [OpenOrca](https://huggingface.co/datasets/Open-Orca/OpenOrca) and [MOSS](https://github.com/OpenMOSS/MOSS/tree/main) for alignment.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=gpt-omni/mini-omni&type=Date)](https://star-history.com/#gpt-omni/mini-omni&Date)
