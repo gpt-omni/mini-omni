@@ -11,7 +11,7 @@ Mini-Omni: Language Models Can Hear, Talk While Thinking in Streaming
 |     📑 <a href="https://arxiv.org/abs/2408.16725">Technical report</a>
 </p>
 
-Mini-Omni is an open-source multimodel large language model that can **hear, talk while thinking**. Featuring real-time end-to-end speech input and **streaming audio output** conversational capabilities.
+Mini-Omni is an open-source multimodal large language model that can **hear, talk while thinking**. Featuring real-time end-to-end speech input and **streaming audio output** conversational capabilities.
 
 <p align="center">
     <img src="data/figures/frameworkv3.jpg" width="100%"/>
