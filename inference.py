@@ -494,7 +494,7 @@ class OmniInference:
                 if current_index == nums_generate:
                     current_index = 0
                     snac = get_snac(list_output, index, nums_generate)
-                    audio_stream = generate_audio_data(snac, self.snacmodel)
+                    audio_stream = generate_audio_data(snac, self.snacmodel, self.device)
                     yield audio_stream
 
             input_pos = input_pos.add_(1)
