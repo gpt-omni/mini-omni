@@ -56,6 +56,7 @@ pip install -r requirements.txt
 ```sh
 conda activate omni
 cd mini-omni
+export PYTHONPATH=./
 python3 server.py --ip '0.0.0.0' --port 60808
 ```
 
@@ -65,11 +66,13 @@ NOTE: you need to run streamlit locally with PyAudio installed.
 
 ```sh
 pip install PyAudio==0.2.14
+export PYTHONPATH=./
 API_URL=http://0.0.0.0:60808/chat streamlit run webui/omni_streamlit.py
 ```
 
 - run gradio demo
 ```sh
+export PYTHONPATH=./
 API_URL=http://0.0.0.0:60808/chat python3 webui/omni_gradio.py
 ```
 
@@ -86,6 +89,7 @@ https://github.com/user-attachments/assets/29187680-4c42-47ff-b352-f0ea333496d9
 conda activate omni
 cd mini-omni
 # test run the preset audio samples and questions
+export PYTHONPATH=./
 python inference.py
 ```
 
