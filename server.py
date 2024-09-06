@@ -8,7 +8,7 @@ from inference import OmniInference
 
 class OmniChatServer(object):
     def __init__(self, ip='0.0.0.0', port=60808, run_app=True,
-                 ckpt_dir='./checkpoint', device='cuda:0') -> None:
+                 ckpt_dir='./checkpoint', device='mps') -> None:
         server = Flask(__name__)
         # CORS(server, resources=r"/*")
         # server.config["JSON_AS_ASCII"] = False
@@ -27,10 +27,14 @@ class OmniChatServer(object):
 
         req_data = flask.request.get_json()
         try:
+            print("Req Data: ", req_data)
             data_buf = req_data["audio"].encode("utf-8")
+            print("Data buffer: ", data_buf)
             data_buf = base64.b64decode(data_buf)
             stream_stride = req_data.get("stream_stride", 4)
+            print(stream_stride)
             max_tokens = req_data.get("max_tokens", 2048)
+            print(max_tokens)
 
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
                 f.write(data_buf)
@@ -47,11 +51,11 @@ def create_app():
 
 
 def serve(ip='0.0.0.0', port=60808):
-
     OmniChatServer(ip, port=port, run_app=True)
 
 
 if __name__ == "__main__":
     import fire
+
     fire.Fire(serve)
-    
+

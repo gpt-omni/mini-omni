@@ -461,7 +461,20 @@ class whisperMLP(nn.Module):
 
         self.config = config
 
+        self.pooling = nn.AdaptiveAvgPool1d(768)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        device = x.device
+        if device.type == 'mps':
+            x = x.to('cpu')
+
+            x = x.view(x.size(0), -1)
+            x = x.unsqueeze(1)
+            x = self.pooling(x).squeeze(1)  # Remove the channel dimension after pooling
+
+        if torch.backends.mps.is_available():
+            x = x.to('mps')
+
         x_fc_1 = self.fc_1(x)
         x_fc_2 = self.fc_2(x)
         x = torch.nn.functional.silu(x_fc_1) * x_fc_2
@@ -562,16 +575,31 @@ class KVCache(nn.Module):
             "v", torch.zeros(v_shape, device=device, dtype=dtype), persistent=False
         )
 
-    def forward(
-        self, input_pos: torch.Tensor, k: torch.Tensor, v: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        # move the buffer to the activation dtype for when AMP is used
-        self.k = self.k.to(k.dtype)
-        self.v = self.v.to(v.dtype)
-        # update the cache
-        k = self.k.index_copy_(2, input_pos, k)
-        v = self.v.index_copy_(2, input_pos, v)
-        return k, v
+    def forward(self, input_pos: torch.Tensor, k: torch.Tensor, v: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        if input_pos.is_mps:
+            input_pos = input_pos.cpu()
+            k = k.cpu()
+            v = v.cpu()
+            self.k = self.k.cpu()  # Move self.k to CPU as well
+            self.v = self.v.cpu()  # Move self.v to CPU as well
+            self.k = self.k.index_copy_(2, input_pos, k)
+            self.v = self.v.index_copy_(2, input_pos, v)
+
+            # Move tensors back to MPS if available
+            if torch.backends.mps.is_available():
+                self.k = self.k.to('mps')
+                self.v = self.v.to('mps')
+
+            return self.k, self.v
+        else:
+            # move the buffer to the activation dtype for when AMP is used
+            self.k = self.k.to(k.dtype)
+            self.v = self.v.to(v.dtype)
+            # update the cache
+            k = self.k.index_copy_(2, input_pos, k)
+            v = self.v.index_copy_(2, input_pos, v)
+            return k, v
+
 
     def reset_parameters(self) -> None:
         torch.nn.init.zeros_(self.k)
