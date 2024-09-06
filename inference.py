@@ -399,7 +399,7 @@ class OmniInference:
         model = self.model
 
         with self.fabric.init_tensor():
-            model.set_kv_cache(batch_size=2)
+            model.set_kv_cache(batch_size=2,device=self.device)
 
         mel, leng = load_audio(audio_path)
         audio_feature, input_ids = get_input_ids_whisper_ATBatch(mel, leng, self.whispermodel, self.device)
