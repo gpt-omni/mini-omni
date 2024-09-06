@@ -50,6 +50,7 @@ def process_audio(audio):
                 except Exception as e:
                     print(f"error: {e}")
     else:
+        tik = time.time()
         for chunk in omni_client.run_AT_batch_stream(filepath):
             # Convert chunk to numpy array
             if cnt == 0:
