@@ -64,6 +64,7 @@ python3 server.py --ip '0.0.0.0' --port 60808
 NOTE: you need to run streamlit locally with PyAudio installed.
 
 ```sh
+sudo apt-get install ffmpeg
 pip install PyAudio==0.2.14
 API_URL=http://0.0.0.0:60808/chat streamlit run webui/omni_streamlit.py
 ```
