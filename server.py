@@ -46,9 +46,9 @@ def create_app():
     return server.server
 
 
-def serve(ip='0.0.0.0', port=60808):
+def serve(ip='0.0.0.0', port=60808, device='cuda:0'):
 
-    OmniChatServer(ip, port=port, run_app=True)
+    OmniChatServer(ip, port=port,run_app=True, device=device)
 
 
 if __name__ == "__main__":
