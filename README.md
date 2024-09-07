@@ -54,6 +54,7 @@ pip install -r requirements.txt
 
 - start server
 ```sh
+sudo apt-get install ffmpeg
 conda activate omni
 cd mini-omni
 python3 server.py --ip '0.0.0.0' --port 60808
@@ -64,7 +65,6 @@ python3 server.py --ip '0.0.0.0' --port 60808
 NOTE: you need to run streamlit locally with PyAudio installed.
 
 ```sh
-sudo apt-get install ffmpeg
 pip install PyAudio==0.2.14
 API_URL=http://0.0.0.0:60808/chat streamlit run webui/omni_streamlit.py
 ```
