@@ -453,7 +453,7 @@ class LLaMAMLP(nn.Module):
 
 
 class whisperMLP(nn.Module):
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config) -> None:
         super().__init__()
         self.fc_1 = nn.Linear(config.whisper_adapter_dim, config.intermediate_size, bias=config.bias)
         self.fc_2 = nn.Linear(config.whisper_adapter_dim, config.intermediate_size, bias=config.bias)
@@ -461,25 +461,33 @@ class whisperMLP(nn.Module):
 
         self.config = config
 
+        # Pooling layer for dimensionality reduction (if necessary)
         self.pooling = nn.AdaptiveAvgPool1d(768)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         device = x.device
+
+        # Handle MPS-specific operations
         if device.type == 'mps':
+            # Move the tensor to CPU if necessary (for unsupported ops)
             x = x.to('cpu')
 
-            x = x.view(x.size(0), -1)
-            x = x.unsqueeze(1)
-            x = self.pooling(x).squeeze(1)  # Remove the channel dimension after pooling
+            # Reshape the tensor for pooling
+            x = x.view(x.size(0), -1)  # Flatten dimensions except the batch size
+            x = x.unsqueeze(1)  # Add a channel dimension for pooling
+            x = self.pooling(x).squeeze(1)  # Apply pooling and remove the channel dimension after pooling
 
-        if torch.backends.mps.is_available():
+        # Make sure the tensor is back on MPS if available
+        if device.type == 'mps':
             x = x.to('mps')
 
+        # Perform the standard operations
         x_fc_1 = self.fc_1(x)
         x_fc_2 = self.fc_2(x)
-        x = torch.nn.functional.silu(x_fc_1) * x_fc_2
-        return self.proj(x)
+        x = F.silu(x_fc_1) * x_fc_2
 
+        # Final projection
+        return self.proj(x)
 
 class GemmaMLP(LLaMAMLP):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
