@@ -54,6 +54,7 @@ pip install -r requirements.txt
 
 - start server
 ```sh
+sudo apt-get install ffmpeg
 conda activate omni
 cd mini-omni
 python3 server.py --ip '0.0.0.0' --port 60808
