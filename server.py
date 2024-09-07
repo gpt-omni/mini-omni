@@ -72,6 +72,7 @@ def serve(ip='0.0.0.0', port=60808, device=None):
     OmniChatServer(ip, port=port, run_app=True, device=device)
 
 
+
 if __name__ == "__main__":
     import fire
 
