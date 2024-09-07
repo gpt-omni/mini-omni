@@ -15,9 +15,9 @@ import traceback
 from pydub import AudioSegment
 import sys
 
-# 获取项目的根目录
+# Get the root directory of the project
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-# 将项目根目录添加到 sys.path
+# Add the project root directory to sys.path
 sys.path.append(project_root)
 
 from utils.vad import get_speech_timestamps, collect_chunks, VadOptions
