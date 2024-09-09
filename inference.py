@@ -356,8 +356,8 @@ def load_model(ckpt_dir, device):
 
     # Load Whisper model for transcription based on the device
     if device == 'mps':
-        whispermodel = WhisperForConditionalGeneration.from_pretrained("openai/whisper-tiny").to(device)
-        whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-tiny")
+        whispermodel = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small").to(device)
+        whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-small")
 
         def embed_audio(mel):
             # Convert mel spectrogram to a format suitable for Whisper
