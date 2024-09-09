@@ -484,7 +484,7 @@ class whisperMLP(nn.Module):
         # Perform the standard operations
         x_fc_1 = self.fc_1(x)
         x_fc_2 = self.fc_2(x)
-        x = F.silu(x_fc_1) * x_fc_2
+        x = torch.nn.functional.silu(x_fc_1) * x_fc_2
 
         # Final projection
         return self.proj(x)
