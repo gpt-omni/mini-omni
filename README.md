@@ -92,6 +92,11 @@ cd mini-omni
 python inference.py
 ```
 
+## Common issues
+
+- Error: `ModuleNotFoundError: No module named 'utils.xxxx'`
+    Answer: run `export PYTHONPATH=./` first.
+
 ## Acknowledgements 
 
 - [Qwen2](https://github.com/QwenLM/Qwen2/) as the LLM backbone.
