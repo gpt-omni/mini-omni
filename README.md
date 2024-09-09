@@ -53,6 +53,9 @@ pip install -r requirements.txt
 **Interactive demo**
 
 - start server
+
+NOTE: you need to start the server before running the streamlit or gradio demo with API_URL set to the server address.
+
 ```sh
 sudo apt-get install ffmpeg
 conda activate omni
@@ -63,8 +66,7 @@ python3 server.py --ip '0.0.0.0' --port 60808
 
 - run streamlit demo
 
-NOTE: you need to run streamlit locally with PyAudio installed.
-NOTE: For error: `ModuleNotFoundError: No module named 'utils.vad'`, please run `export PYTHONPATH=./` first.
+NOTE: you need to run streamlit locally with PyAudio installed. For error: `ModuleNotFoundError: No module named 'utils.vad'`, please run `export PYTHONPATH=./` first.
 
 ```sh
 pip install PyAudio==0.2.14
