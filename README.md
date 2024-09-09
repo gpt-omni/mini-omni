@@ -24,7 +24,7 @@ Mini-Omni is an open-source multimodal large language model that can **hear, tal
 
 ✅ **Talking while thinking**, with the ability to generate text and audio at the same time.
 
-✅ **Streaming audio outupt** capabilities.
+✅ **Streaming audio output** capabilities.
 
 ✅ With "Audio-to-Text" and "Audio-to-Audio" **batch inference** to further boost the performance.
 
