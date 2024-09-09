@@ -60,9 +60,11 @@ cd mini-omni
 python3 server.py --ip '0.0.0.0' --port 60808
 ```
 
+
 - run streamlit demo
 
 NOTE: you need to run streamlit locally with PyAudio installed.
+NOTE: For error: `ModuleNotFoundError: No module named 'utils.vad'`, please run `export PYTHONPATH=./` first.
 
 ```sh
 pip install PyAudio==0.2.14
