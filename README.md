@@ -24,7 +24,7 @@ Mini-Omni is an open-source multimodal large language model that can **hear, tal
 
 ✅ **Talking while thinking**, with the ability to generate text and audio at the same time.
 
-✅ **Streaming audio outupt** capabilities.
+✅ **Streaming audio output** capabilities.
 
 ✅ With "Audio-to-Text" and "Audio-to-Audio" **batch inference** to further boost the performance.
 
@@ -53,6 +53,9 @@ pip install -r requirements.txt
 **Interactive demo**
 
 - start server
+
+NOTE: you need to start the server before running the streamlit or gradio demo with API_URL set to the server address.
+
 ```sh
 sudo apt-get install ffmpeg
 conda activate omni
@@ -60,9 +63,10 @@ cd mini-omni
 python3 server.py --ip '0.0.0.0' --port 60808
 ```
 
+
 - run streamlit demo
 
-NOTE: you need to run streamlit locally with PyAudio installed.
+NOTE: you need to run streamlit locally with PyAudio installed. For error: `ModuleNotFoundError: No module named 'utils.vad'`, please run `export PYTHONPATH=./` first.
 
 ```sh
 pip install PyAudio==0.2.14
@@ -89,6 +93,12 @@ cd mini-omni
 # test run the preset audio samples and questions
 python inference.py
 ```
+
+## Common issues
+
+- Error: `ModuleNotFoundError: No module named 'utils.xxxx'`
+
+    Answer: run `export PYTHONPATH=./` first.
 
 ## Acknowledgements 
 
