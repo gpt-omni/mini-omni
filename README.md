@@ -66,7 +66,7 @@ python3 server.py --ip '0.0.0.0' --port 60808
 
 - run streamlit demo
 
-NOTE: you need to run streamlit locally with PyAudio installed. For error: `ModuleNotFoundError: No module named 'utils.vad'`, please run `export PYTHONPATH=./` first.
+NOTE: you need to run streamlit **locally** with PyAudio installed. For error: `ModuleNotFoundError: No module named 'utils.vad'`, please run `export PYTHONPATH=./` first.
 
 ```sh
 pip install PyAudio==0.2.14
@@ -98,7 +98,12 @@ python inference.py
 
 - Error: `ModuleNotFoundError: No module named 'utils.xxxx'`
 
-    Answer: run `export PYTHONPATH=./` first.
+    Answer: run `export PYTHONPATH=./` first. No need to run `pip install utils`, or just try: `pip uninstall utils`
+
+
+- Error: can run streamlit in local browser, with remote streamlit server, issue: https://github.com/gpt-omni/mini-omni/issues/37
+    
+    Answer: you need start streamlit **locally** with PyAudio installed.
 
 ## Acknowledgements 
 
