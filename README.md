@@ -99,23 +99,23 @@ cd mini-omni
 python inference.py
 ```
 
-## Common issues
+## FAQ
 
-- Question: does the model support other languages?
+**1. Does the model support other languages?**
 
-    **Answer**: No, the model is only trained on English. However, as we use whisper as the audio encoder, the model can understand other languages which is supported by whisper (like chinese), but the output is only in English.
+No, the model is only trained on English. However, as we use whisper as the audio encoder, the model can understand other languages which is supported by whisper (like chinese), but the output is only in English.
 
-- Question: what is `post_adapter` in the code? does the open-source version support tts-adapter?
+**2. What is `post_adapter` in the code? does the open-source version support tts-adapter?**
 
-    **Answer**: `post_adapter` is the `tts-adapter` in the model.py, but the open-source version does not support `tts-adapter`.
+The `post_adapter` is `tts-adapter` in the model.py, but the open-source version does not support `tts-adapter`.
 
-- Error: `ModuleNotFoundError: No module named 'utils.xxxx'`
+**3. Error: `ModuleNotFoundError: No module named 'utils.xxxx'`**
 
-    **Answer**: run `export PYTHONPATH=./` first. No need to run `pip install utils`, or just try: `pip uninstall utils`
+Run `export PYTHONPATH=./` first. No need to run `pip install utils`, or just try: `pip uninstall utils`
 
-- Error: can not run streamlit in local browser, with remote streamlit server, issue: https://github.com/gpt-omni/mini-omni/issues/37
+**4. Error: can not run streamlit in local browser, with remote streamlit server**, issue: https://github.com/gpt-omni/mini-omni/issues/37
     
-    **Answer**: you need start streamlit **locally** with PyAudio installed.
+You need start streamlit **locally** with PyAudio installed.
 
 
 ## Acknowledgements 
