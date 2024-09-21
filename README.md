@@ -8,7 +8,8 @@ Mini-Omni: Language Models Can Hear, Talk While Thinking in Streaming
 
 <p align="center">
 🤗 <a href="https://huggingface.co/gpt-omni/mini-omni">Hugging Face</a>   | 📖 <a href="https://github.com/gpt-omni/mini-omni">Github</a> 
-|     📑 <a href="https://arxiv.org/abs/2408.16725">Technical report</a>
+|     📑 <a href="https://arxiv.org/abs/2408.16725">Technical report</a> |
+🤗 <a href="https://huggingface.co/datasets/gpt-omni/VoiceAssistant-400K">Datasets</a>
 </p>
 
 Mini-Omni is an open-source multimodal large language model that can **hear, talk while thinking**. Featuring real-time end-to-end speech input and **streaming audio output** conversational capabilities.
@@ -17,6 +18,10 @@ Mini-Omni is an open-source multimodal large language model that can **hear, tal
     <img src="data/figures/frameworkv3.jpg" width="100%"/>
 </p>
 
+
+## Updates
+
+- **2024.09:** **VoiceAssistant-400K** is uploaded to [Hugging Face](https://huggingface.co/datasets/gpt-omni/VoiceAssistant-400K).
 
 ## Features
 
@@ -66,7 +71,7 @@ python3 server.py --ip '0.0.0.0' --port 60808
 
 - run streamlit demo
 
-NOTE: you need to run streamlit locally with PyAudio installed. For error: `ModuleNotFoundError: No module named 'utils.vad'`, please run `export PYTHONPATH=./` first.
+NOTE: you need to run streamlit **locally** with PyAudio installed. For error: `ModuleNotFoundError: No module named 'utils.vad'`, please run `export PYTHONPATH=./` first.
 
 ```sh
 pip install PyAudio==0.2.14
@@ -94,11 +99,24 @@ cd mini-omni
 python inference.py
 ```
 
-## Common issues
+## FAQ
 
-- Error: `ModuleNotFoundError: No module named 'utils.xxxx'`
+**1. Does the model support other languages?**
 
-    Answer: run `export PYTHONPATH=./` first.
+No, the model is only trained on English. However, as we use whisper as the audio encoder, the model can understand other languages which is supported by whisper (like chinese), but the output is only in English.
+
+**2. What is `post_adapter` in the code? does the open-source version support tts-adapter?**
+
+The `post_adapter` is `tts-adapter` in the model.py, but the open-source version does not support `tts-adapter`.
+
+**3. Error: `ModuleNotFoundError: No module named 'utils.xxxx'`**
+
+Run `export PYTHONPATH=./` first. No need to run `pip install utils`, or just try: `pip uninstall utils`
+
+**4. Error: can not run streamlit in local browser, with remote streamlit server**, issue: https://github.com/gpt-omni/mini-omni/issues/37
+    
+You need start streamlit **locally** with PyAudio installed.
+
 
 ## Acknowledgements 
 
