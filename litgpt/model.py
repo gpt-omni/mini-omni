@@ -104,7 +104,24 @@ class GPT(nn.Module):
         for j in range(len(T)):
             if task[j] != "T1T2" and task[j] != "T1A2":
                 for i in range(7):
-                    input_ids[i][j, 1 : T[j] + 1, :] = audio_feature[j][: T[j]].clone()
+                    # Ensure audio_feature has the correct dimensions
+                    audio_feat = audio_feature[j][: T[j]].clone()
+
+                    # Debug: print shapes for comparison
+                    print(f"audio_feature shape: {audio_feat.shape}")
+                    print(f"input_ids shape: {input_ids[i][j, 1: T[j] + 1, :].shape}")
+
+                    # If the audio_feature is 1D, expand it to match the embedding dimensions
+                    if audio_feat.ndim == 1:
+                        audio_feat = audio_feat.unsqueeze(-1)  # Add an extra dimension
+
+                    # If audio_feature has fewer dimensions than required, repeat the values across the embedding dimension
+                    if audio_feat.size(-1) != input_ids[i][j, 1: T[j] + 1, :].size(-1):
+                        audio_feat = audio_feat.expand(-1, input_ids[i][j, 1: T[j] + 1, :].size(-1))
+
+                    # Now, assign the expanded or reshaped audio_feature to input_ids
+                    input_ids[i][j, 1: T[j] + 1, :] = audio_feat
+
             else:
                 continue
         return input_ids
