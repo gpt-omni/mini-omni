@@ -21,6 +21,7 @@ Mini-Omni is an open-source multimodal large language model that can **hear, tal
 
 ## Updates
 
+- **2024.10:** We released [Mini-Omni2](https://github.com/gpt-omni/mini-omni2) with vision and audio capabilities. 
 - **2024.09:** Amazing online [interactive gradio demo](https://huggingface.co/spaces/gradio/omni-mini) by 🤗 gradio team.
 - **2024.09:** **VoiceAssistant-400K** is uploaded to [Hugging Face](https://huggingface.co/datasets/gpt-omni/VoiceAssistant-400K).
 
