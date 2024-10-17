@@ -15,7 +15,7 @@ from typing_extensions import Self
 from litgpt.config import Config
 
 
-class GPT(nn.Module):
+class GPT(nn.Module, PyTorchModelHubMixin, repo_url="https://github.com/gpt-omni/mini-omni", pipeline_tag="text-to-speech", license="mit"):
     def __init__(self, config: Config) -> None:
         super().__init__()
         assert config.padded_vocab_size is not None
