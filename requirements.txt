@@ -15,3 +15,5 @@ gradio==4.42.0
 librosa==0.10.2.post1
 flask==3.0.3
 fire
+transformers
+pyaudio

@@ -1,8 +1,12 @@
 import os
+
+import librosa
 import lightning as L
 import torch
 import time
 from snac import SNAC
+from transformers import WhisperForConditionalGeneration, WhisperProcessor, WhisperTokenizer
+
 from litgpt import Tokenizer
 from litgpt.utils import (
     num_parameters,
@@ -79,7 +83,7 @@ def get_input_ids_TT(text, text_tokenizer):
 
 
 def get_input_ids_whisper(
-    mel, leng, whispermodel, device, 
+    mel, leng, whispermodel, device,
     special_token_a=_answer_a, special_token_t=_answer_t,
 ):
 
@@ -241,7 +245,7 @@ def A1_A2(fabric, audio_feature, input_ids, leng, model, text_tokenizer, step,
         out_dir = out_dir + "/A1-A2"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-        
+
     audio = reconstruct_tensors(audiolist)
     with torch.inference_mode():
         audio_hat = snacmodel.decode(audio)
@@ -345,10 +349,47 @@ def T1_T2(fabric, input_ids, model, text_tokenizer, step):
     model.clear_kv_cache()
     return text_tokenizer.decode(torch.tensor(tokenlist)).strip()
 
-    
+
 def load_model(ckpt_dir, device):
+    # Load SNAC model
     snacmodel = SNAC.from_pretrained("hubertsiuzdak/snac_24khz").eval().to(device)
-    whispermodel = whisper.load_model("small").to(device)
+
+    # Load Whisper model for transcription based on the device
+    if device == 'mps':
+        whispermodel = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small").to(device)
+        whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-small")
+
+        def embed_audio(mel):
+            """
+            This function now mimics the behavior of the Whisper encoder's `embed_audio` function, where it processes
+            the mel spectrogram and passes it through the encoder to return the encoded audio features.
+            """
+            # Convert mel spectrogram to a format suitable for Whisper
+            mel_cpu = mel.cpu().numpy()
+
+            if mel_cpu.ndim > 1:
+                mel_cpu = librosa.to_mono(mel_cpu)
+
+            if mel_cpu.ndim != 1:
+                raise ValueError(f"Audio is not mono! Shape: {mel_cpu.shape}")
+
+            # Process mel with Whisper processor to get input features
+            inputs = whisper_processor(mel_cpu, sampling_rate=16000, return_tensors="pt").input_features.to(device)
+
+            # Pass input features through Whisper's encoder
+            encoder_outputs = whispermodel.model.encoder(inputs)
+
+            # Return the encoded audio features (logits or embeddings from the encoder)
+            return encoder_outputs
+
+        # Assign the custom `embed_audio` method to `whispermodel`
+        whispermodel.embed_audio = embed_audio
+
+    else:
+        # If not MPS, use the regular Whisper model loading
+        whispermodel = whisper.load_model("small").to(device)
+
+    # Load the GPT model with Fabric
     text_tokenizer = Tokenizer(ckpt_dir)
     fabric = L.Fabric(devices=1, strategy="auto")
     config = Config.from_file(ckpt_dir + "/model_config.yaml")
@@ -362,45 +403,71 @@ def load_model(ckpt_dir, device):
     model.load_state_dict(state_dict, strict=True)
     model.to(device).eval()
 
+    # Return everything as before, ensuring whispermodel is properly handled
     return fabric, model, text_tokenizer, snacmodel, whispermodel
 
-    
+
 def download_model(ckpt_dir):
     repo_id = "gpt-omni/mini-omni"
     snapshot_download(repo_id, local_dir=ckpt_dir, revision="main")
 
-    
-class OmniInference:
 
-    def __init__(self, ckpt_dir='./checkpoint', device='cuda:0'):
-        self.device = device
+class OmniInference:
+    def __init__(self, ckpt_dir='./checkpoint', device=None):
+        # Dynamically determine device (similar to OmniChatServer's get_device)
+        self.device = self.get_device(device)
+
+        # If checkpoint directory does not exist, download it
         if not os.path.exists(ckpt_dir):
-            print(f"checkpoint directory {ckpt_dir} not found, downloading from huggingface")
+            print(f"Checkpoint directory {ckpt_dir} not found, downloading from HuggingFace.")
             download_model(ckpt_dir)
-        self.fabric, self.model, self.text_tokenizer, self.snacmodel, self.whispermodel = load_model(ckpt_dir, device)
+
+        # Load models (SNAC, Whisper, GPT)
+        self.fabric, self.model, self.text_tokenizer, self.snacmodel, self.whispermodel = load_model(ckpt_dir,
+                                                                                                     self.device)
+
+    def get_device(self, device):
+        if device is None:
+            if torch.cuda.is_available():
+                return 'cuda'
+            elif torch.backends.mps.is_available():
+                return 'mps'
+            else:
+                return 'cpu'
+        else:
+            if device == 'cuda' and torch.cuda.is_available():
+                return 'cuda'
+            elif device == 'mps' and torch.backends.mps.is_available():
+                return 'mps'
+            else:
+                return 'cpu'
 
     def warm_up(self, sample='./data/samples/output1.wav'):
+        # Run a warm-up pass by running the AT batch stream
         for _ in self.run_AT_batch_stream(sample):
             pass
 
     @torch.inference_mode()
-    def run_AT_batch_stream(self, 
-                            audio_path, 
+    def run_AT_batch_stream(self,
+                            audio_path,
                             stream_stride=4,
-                            max_returned_tokens=2048, 
-                            temperature=0.9, 
-                            top_k=1, 
+                            max_returned_tokens=2048,
+                            temperature=0.9,
+                            top_k=1,
                             top_p=1.0,
                             eos_id_a=_eoa,
-                            eos_id_t=_eot,
-        ):
+                            eos_id_t=_eot):
 
-        assert os.path.exists(audio_path), f"audio file {audio_path} not found"
+        assert os.path.exists(audio_path), f"Audio file {audio_path} not found"
+
         model = self.model
 
+        # Initialize kv cache with dynamic device handling
         with self.fabric.init_tensor():
-            model.set_kv_cache(batch_size=2,device=self.device)
+            model.set_kv_cache(batch_size=2, device=self.device)
 
+
+        # Load the audio and process it using Whisper
         mel, leng = load_audio(audio_path)
         audio_feature, input_ids = get_input_ids_whisper_ATBatch(mel, leng, self.whispermodel, self.device)
         T = input_ids[0].size(1)
@@ -409,19 +476,19 @@ class OmniInference:
         assert max_returned_tokens > T, f"max_returned_tokens {max_returned_tokens} should be greater than audio length {T}"
 
         if model.max_seq_length < max_returned_tokens - 1:
-            raise NotImplementedError(
-                f"max_seq_length {model.max_seq_length} needs to be >= {max_returned_tokens - 1}"
-            )
+            raise NotImplementedError(f"max_seq_length {model.max_seq_length} needs to be >= {max_returned_tokens - 1}")
 
         input_pos = torch.tensor([T], device=device)
         list_output = [[] for i in range(8)]
+
+        # Generate tokens
         tokens_A, token_T = next_token_batch(
             model,
-            audio_feature.to(torch.float32).to(model.device),
+            audio_feature.to(torch.float32).to(self.device),
             input_ids,
             [T - 3, T - 3],
             ["A1T2", "A1T2"],
-            input_pos=torch.arange(0, T, device=device),
+            input_pos=torch.arange(0, T, device=self.device),
             temperature=temperature,
             top_k=top_k,
             top_p=top_p,
@@ -431,11 +498,12 @@ class OmniInference:
             list_output[i].append(tokens_A[i].tolist()[0])
         list_output[7].append(token_T.tolist()[0])
 
+        # Prepare model input IDs for the next iterations
         model_input_ids = [[] for i in range(8)]
         for i in range(7):
             tokens_A[i] = tokens_A[i].clone() + padded_text_vocabsize + i * padded_audio_vocabsize
-            model_input_ids[i].append(tokens_A[i].clone().to(device).to(torch.int32))
-            model_input_ids[i].append(torch.tensor([layershift(4097, i)], device=device))
+            model_input_ids[i].append(tokens_A[i].clone().to(self.device).to(torch.int32))
+            model_input_ids[i].append(torch.tensor([layershift(4097, i)], device=self.device))
             model_input_ids[i] = torch.stack(model_input_ids[i])
 
         model_input_ids[-1].append(token_T.clone().to(torch.int32))
@@ -461,7 +529,7 @@ class OmniInference:
             )
 
             if text_end:
-                token_T = torch.tensor([_pad_t], device=device)
+                token_T = torch.tensor([_pad_t], device=self.device)
 
             if tokens_A[-1] == eos_id_a:
                 break
@@ -475,11 +543,9 @@ class OmniInference:
 
             model_input_ids = [[] for i in range(8)]
             for i in range(7):
-                tokens_A[i] = tokens_A[i].clone() +padded_text_vocabsize + i * padded_audio_vocabsize
-                model_input_ids[i].append(tokens_A[i].clone().to(device).to(torch.int32))
-                model_input_ids[i].append(
-                    torch.tensor([layershift(4097, i)], device=device)
-                )
+                tokens_A[i] = tokens_A[i].clone() + padded_text_vocabsize + i * padded_audio_vocabsize
+                model_input_ids[i].append(tokens_A[i].clone().to(self.device).to(torch.int32))
+                model_input_ids[i].append(torch.tensor([layershift(4097, i)], device=self.device))
                 model_input_ids[i] = torch.stack(model_input_ids[i])
 
             model_input_ids[-1].append(token_T.clone().to(torch.int32))
@@ -499,6 +565,7 @@ class OmniInference:
 
             input_pos = input_pos.add_(1)
             index += 1
+
         text = self.text_tokenizer.decode(torch.tensor(list_output[-1]))
         print(f"text output: {text}")
         model.clear_kv_cache()
@@ -506,7 +573,7 @@ class OmniInference:
 
 
 def test_infer():
-    device = "cuda:0"
+    device = "mps"
     out_dir = f"./output/{get_time_str()}"
     ckpt_dir = f"./checkpoint"
     if not os.path.exists(ckpt_dir):
@@ -628,7 +695,7 @@ def test_infer():
             for path in test_audio_list:
                 mel, leng = load_audio(path)
                 audio_feature, input_ids = get_input_ids_whisper(
-                    mel, leng, whispermodel, device, 
+                    mel, leng, whispermodel, device,
                     special_token_a=_pad_a, special_token_t=_answer_t
                 )
                 text = A1_T2(

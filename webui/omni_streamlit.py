@@ -13,6 +13,13 @@ import tempfile
 import librosa
 import traceback
 from pydub import AudioSegment
+import sys
+
+# Get the root directory of the project
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# Add the project root directory to sys.path
+sys.path.append(project_root)
+
 from utils.vad import get_speech_timestamps, collect_chunks, VadOptions
 
 
