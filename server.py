@@ -1,9 +1,15 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+
+from inference import OmniInference
 import flask
 import base64
 import tempfile
 import traceback
 from flask import Flask, Response, stream_with_context
-from inference import OmniInference
 
 
 class OmniChatServer(object):
@@ -54,4 +60,4 @@ def serve(ip='0.0.0.0', port=60808, device='cuda:0'):
 if __name__ == "__main__":
     import fire
     fire.Fire(serve)
-    
+

@@ -1,3 +1,10 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.vad import get_speech_timestamps, collect_chunks, VadOptions
+
+
 import streamlit as st
 import wave
 
@@ -13,7 +20,6 @@ import tempfile
 import librosa
 import traceback
 from pydub import AudioSegment
-from utils.vad import get_speech_timestamps, collect_chunks, VadOptions
 
 
 API_URL = os.getenv("API_URL", "http://127.0.0.1:60808/chat")
