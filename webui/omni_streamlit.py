@@ -194,7 +194,7 @@ def recording(status):
                 st.session_state.frames.append(temp_audio)
             if dur_vad < 0.1 and start_talking:
                 st.session_state.recording = False
-                print(f"speech end detected. excit")
+                print(f"speech end detected. exit")
             last_temp_audio = temp_audio
             temp_audio = b""
 
